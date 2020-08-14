@@ -54,7 +54,9 @@ def showdata():
     data = cursor.fetchall()
     print(data)
 
-
+def encrypt():
+    pass
+    #TODO: do stuff
 #cursor.execute
 #("CREATE TABLE Credentials(username VARCHAR(255), password VARCHAR(255), ID int PRIMARY KEY AUTO_INCREMENT)")
 
