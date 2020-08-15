@@ -1,4 +1,11 @@
+from cryptography.fernet import Fernet
 import mysql.connector
+
+def load_key():
+    return open("key.key", "rb").read()
+
+fernet = Fernet(load_key())
+
 with open("passwd.txt", "r") as passwd:
     db = mysql.connector.connect(
         host="localhost",
@@ -15,19 +22,20 @@ def login(uname, pswrd):
     row = cursor.fetchone()
     passwordcorrect = False
     try:
-        passwordcorrect = row[1] == pswrd
+        passwordcorrect = decrypt(row[1]) == pswrd.encode()
 
         if passwordcorrect:
             print("Login Successful!")
         else:
             print("Password invalid! Login Unsuccessful!")
-    except:
+            
+    except TypeError:
         print("This username does not exist in the database.")
-
 
 
 def register(uname, pswrd):
 
+    pswrd = encrypt(pswrd)
     cursor.execute("SELECT EXISTS(SELECT * FROM Credentials WHERE username = %s)", (uname, ))
     usernamefetch = cursor.fetchone()
     usernameexists = bool(usernamefetch[0])
@@ -54,13 +62,15 @@ def showdata():
     data = cursor.fetchall()
     print(data)
 
-def encrypt():
-    pass
-    #TODO: do stuff
+def encrypt(data:str):
+    return fernet.encrypt(data.encode())
+def decrypt(data:str):
+    return fernet.decrypt(data.encode())
 #cursor.execute
 #("CREATE TABLE Credentials(username VARCHAR(255), password VARCHAR(255), ID int PRIMARY KEY AUTO_INCREMENT)")
 
 if __name__ == "__main__":
+
     action = int(input("What action do you want to perform? \n1 - Login \n2 - Register \n"))
     username = input("Username: ")
     password = input("Password: ")
@@ -73,6 +83,5 @@ if __name__ == "__main__":
         showdata()
     else:
         print("That action is not valid!")
-
 
 
