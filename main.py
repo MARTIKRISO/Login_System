@@ -1,11 +1,11 @@
 import mysql.connector
-
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    passwd="martin2005",
-    database="loginsystem"
-)
+with open("passwd.txt", "r") as passwd:
+    db = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd=passwd.read(),
+        database="loginsystem"
+    )
 
 cursor = db.cursor(buffered=True)
 
@@ -15,15 +15,15 @@ def login(uname, pswrd):
     row = cursor.fetchone()
     passwordcorrect = False
     try:
-        passwordcorrect = pswrd == row[1]
-    except:
-        print("Username does not exist in database!")
-        quit()
-    finally:
+        passwordcorrect = row[1] == pswrd
+
         if passwordcorrect:
             print("Login Successful!")
         else:
-            print("Login Unsuccessful!")
+            print("Password invalid! Login Unsuccessful!")
+    except:
+        print("This username does not exist in the database.")
+
 
 
 def register(uname, pswrd):
@@ -61,7 +61,7 @@ def encrypt():
 #("CREATE TABLE Credentials(username VARCHAR(255), password VARCHAR(255), ID int PRIMARY KEY AUTO_INCREMENT)")
 
 if __name__ == "__main__":
-    action = input("What action do you want to perform? \n1 - Login \n2 - Register \n")
+    action = int(input("What action do you want to perform? \n1 - Login \n2 - Register \n"))
     username = input("Username: ")
     password = input("Password: ")
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         login(username, password)
     elif action == 2:
         register(username, password)
-    elif action == "admin":
+    elif action == 3:
         showdata()
     else:
         print("That action is not valid!")
